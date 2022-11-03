@@ -11,13 +11,13 @@ String orderToJson(Order data) => json.encode(data.toJson());
 
 class Order {
   Order({
-    @required this.status,
-    @required this.message,
-    @required this.data,
+    required this.status,
+    required this.message,
+    required this.data,
   });
 
-  String? status;
-  String? message;
+  String status;
+  String message;
   List<Datum>? data;
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -39,52 +39,53 @@ class Order {
 
 class Datum {
   Datum({
-    @required this.id,
-    @required this.orderNumber,
-    @required this.orderDate,
-    @required this.customerId,
-    @required this.amount,
-    @required this.zoneId,
-    @required this.deliveryDate,
-    @required this.supplierId,
-    @required this.deliveryId,
-    @required this.status,
-    @required this.ratting,
-    @required this.createdAt,
-    @required this.updatedAt,
-    @required this.prodname,
-    @required this.customerData,
-    @required this.supplierData,
-    @required this.orderItems,
+    required this.id,
+    required this.orderNumber,
+    required this.orderDate,
+    required this.customerId,
+    required this.amount,
+    required this.zoneId,
+    required this.deliveryDate,
+    required this.supplierId,
+    required this.deliveryId,
+    required this.status,
+    required this.ratting,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.prodname,
+    required this.customerData,
+    required this.supplierData,
+    required this.orderItems,
   });
 
   int? id;
-  String? orderNumber;
+  String orderNumber;
   String? orderDate;
-  String? customerId;
-  String? amount;
-  dynamic? zoneId;
-  String? deliveryDate;
-  String? supplierId;
-  String? deliveryId;
-  String? status;
-  String? ratting;
+  String customerId;
+  String amount;
+  dynamic zoneId;
+  DateTime? deliveryDate;
+  String supplierId;
+  String deliveryId;
+  String status;
+  String ratting;
   dynamic? createdAt;
   dynamic? updatedAt;
-  String? prodname;
+  String prodname;
   ErData? customerData;
   ErData? supplierData;
   List<OrderItem>? orderItems;
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        id: json["id"] == null ? null : json["id"],
-        orderNumber: json["order_number"] == null ? null : json["order_number"],
+        id: json["id"],
+        orderNumber: json["order_number"],
         orderDate: json["order_date"] == null ? null : json["order_date"],
         customerId: json["customer_id"] == null ? null : json["customer_id"],
         amount: json["amount"] == null ? null : json["amount"],
         zoneId: json["zone_id"],
-        deliveryDate:
-            json["delivery_date"] == null ? null : json["delivery_date"],
+        deliveryDate: json["delivery_date"] == null
+            ? null
+            : DateTime.parse(json["delivery_date"]),
         supplierId: json["supplier_id"] == null ? null : json["supplier_id"],
         deliveryId: json["delivery_id"] == null ? null : json["delivery_id"],
         status: json["status"] == null ? null : json["status"],
@@ -112,6 +113,11 @@ class Datum {
         "amount": amount == null ? null : amount,
         "zone_id": zoneId,
         "delivery_date": deliveryDate == null ? null : deliveryDate,
+        "order_date": orderDate == null ? null : orderDate,
+        "customer_id": customerId == null ? null : customerId,
+        "amount": amount == null ? null : amount,
+        "zone_id": zoneId,
+        "delivery_date": deliveryDate == null ? null : deliveryDate,
         "supplier_id": supplierId == null ? null : supplierId,
         "delivery_id": deliveryId == null ? null : deliveryId,
         "status": status == null ? null : status,
@@ -121,6 +127,8 @@ class Datum {
         "prodname": prodname == null ? null : prodname,
         "customer_data": customerData == null ? null : customerData?.toJson(),
         "supplier_data": supplierData == null ? null : supplierData?.toJson(),
+        "customer_data": customerData == null ? null : customerData!.toJson(),
+        "supplier_data": supplierData == null ? null : supplierData!.toJson(),
         "order_items": orderItems == null
             ? null
             : List<dynamic>.from(orderItems!.map((x) => x.toJson())),
@@ -129,23 +137,23 @@ class Datum {
 
 class ErData {
   ErData({
-    @required this.id,
-    @required this.firstName,
-    @required this.lastName,
-    @required this.drivingLicense,
-    @required this.vehicalNumber,
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.drivingLicense,
+    required this.vehicalNumber,
     @required this.dob,
     @required this.slug,
     @required this.country,
-    @required this.phoneNumber,
-    @required this.email,
+    required this.phoneNumber,
+    required this.email,
     @required this.emailVerifiedAt,
-    @required this.businessAddress,
-    @required this.photo,
-    @required this.catId,
-    @required this.radius,
+    required this.businessAddress,
+    required this.photo,
+    required this.catId,
+    required this.radius,
     @required this.desc,
-    @required this.otpLogin,
+    required this.otpLogin,
     @required this.forgotToken,
     @required this.isPasswordChange,
     @required this.isFeatured,
@@ -284,6 +292,8 @@ class ErData {
         "parent_id": parentId,
         "created_at": createdAt == null ? null : createdAt?.toIso8601String(),
         "updated_at": updatedAt == null ? null : updatedAt?.toIso8601String(),
+        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
+        "updated_at": updatedAt == null ? null : updatedAt!.toIso8601String(),
       };
 }
 
@@ -306,6 +316,7 @@ class OrderItem {
   String? basePrice;
   dynamic? createdAt;
   dynamic? updatedAt;
+
   ProductData? productData;
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
