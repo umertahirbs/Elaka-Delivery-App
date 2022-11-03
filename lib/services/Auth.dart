@@ -1,4 +1,5 @@
 import 'package:elaka_delivery_app/models/LoginModel.dart';
+import 'package:elaka_delivery_app/models/submit.dart';
 import 'package:elaka_delivery_app/models/userModel.dart';
 import 'package:elaka_delivery_app/models/ordermodel.dart';
 
@@ -210,7 +211,7 @@ Future<LoginUser?> updateProfile(
   }
 }
 
-Future<Order?> getOrders(String userid) async {
+Future<Order?> getOrders(int userid) async {
   final _authority = "falconskintools.com";
   final _path = "/alaka/api/orders/deliveryboy";
   // final _params = {"email": email, "password": password};
@@ -241,6 +242,41 @@ Future<Order?> getOrders(String userid) async {
   }
 }
 
+Future<SubmitOrder?> submitOrder(int orderId, String amount) async {
+  final _authority = "falconskintools.com";
+  final _path = "/alaka/api/orders/deliveryboycollect/amount";
+  // final _params = {"email": email, "password": password};
+  final _uri = Uri.https(_authority, _path);
+  // var url = Uri.https(loginUrl);
+  final http.Response response = await http.post(
+    _uri,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{
+      "order_id": orderId,
+      "deliveryboy_amt_collected": amount,
+      "status": "5"
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = convert.jsonDecode(response.body);
+    var status = jsonResponse['status'];
+
+    if (status == "tue") {
+      SubmitOrder userRes = SubmitOrder.fromJson(json.decode(response.body));
+      return userRes;
+    }
+    return null;
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    return null;
+    throw Exception('Failed to signin');
+  }
+}
+
 class SharedPrefUtils {
   static saveStr(String key, String message) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
@@ -259,6 +295,7 @@ class SharedPrefUtils {
 
   static readPrefInt(String key) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
+
     return pref.getInt(key);
   }
 }

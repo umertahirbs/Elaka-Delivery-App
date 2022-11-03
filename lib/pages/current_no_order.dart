@@ -25,7 +25,7 @@ class _CurrentNoOrderState extends State<CurrentNoOrder> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    callAPi(widget.userId);
+    //callAPi(widget.userId);
   }
 
   @override
@@ -149,7 +149,7 @@ class _CurrentNoOrderState extends State<CurrentNoOrder> {
     setState(() {
       isLoading = true;
     });
-    var res = await getOrders("21").then((resp) => {
+    var res = await getOrders(2).then((resp) => {
           //    print(resp)
 
           handleResp(resp)

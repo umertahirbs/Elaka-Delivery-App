@@ -9,6 +9,7 @@ import 'package:elaka_delivery_app/widgets/product_detail_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class CurrentOrder extends StatefulWidget {
@@ -22,14 +23,19 @@ class _CurrentOrderState extends State<CurrentOrder> {
   int currentIndex = 0;
   bool isLoading = false;
 
+  Order? order;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    getUserID();
   }
 
   @override
   Widget build(BuildContext context) {
+    Datum? data = order?.data?.first;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 243, 247, 255),
       body: Column(
@@ -42,7 +48,7 @@ class _CurrentOrderState extends State<CurrentOrder> {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Text(
                   "Current Order",
                   style: TextStyle(
@@ -56,145 +62,155 @@ class _CurrentOrderState extends State<CurrentOrder> {
           const SizedBox(
             height: 50,
           ),
-          Expanded(
-            child: Container(
-                width: MediaQuery.of(context).size.width * 1,
-                // height: MediaQuery.of(context).size.height * 0.7,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 20,
-                      blurRadius: 15,
-                      offset: const Offset(0, 10), // changes position of shadow
-                    ),
-                  ],
+          isLoading
+              ? const SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CircularProgressIndicator(
+                    color: Colors.green,
+                    strokeWidth: 2,
+                  ))
+              : Expanded(
+                  child: Container(
+                      width: MediaQuery.of(context).size.width * 1,
+                      // height: MediaQuery.of(context).size.height * 0.7,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 20,
+                            blurRadius: 15,
+                            offset: const Offset(
+                                0, 10), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 40, bottom: 10),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Order Date : ",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 78, 206, 113),
+                                    ),
+                                  ),
+                                  WidthBox(20),
+                                  Text(
+                                    data?.orderDate ?? "",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 78, 206, 113),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 40),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Order No : ",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 78, 206, 113),
+                                    ),
+                                  ),
+                                  WidthBox(33),
+                                  Text(
+                                    data?.orderNumber ?? "",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 78, 206, 113),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            HeightBox(30),
+                            // Padding(
+                            //   padding: const EdgeInsets.only(left: 20),
+                            //   child: Row(
+                            //     children: const [
+                            //       Text(
+                            //         "Supplier 1",
+                            //         style: TextStyle(
+                            //           fontSize: 24,
+                            //           fontWeight: FontWeight.bold,
+                            //           color: Color.fromARGB(255, 78, 206, 113),
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                            // const HeightBox(10),
+                            // Container(
+                            //   width: MediaQuery.of(context).size.width * 0.9,
+                            //   height: 38,
+                            //   decoration: const BoxDecoration(
+                            //     // 12,21,100
+                            //     color: Color.fromARGB(255, 12, 21, 100),
+                            //   ),
+                            // ),
+
+                            ProductDetailWidget(order),
+
+                            // Container(
+                            //   width: MediaQuery.of(context).size.width * 0.9,
+                            //   height: 38,
+                            //   decoration: const BoxDecoration(
+                            //     // 12,21,100
+                            //     color: Color.fromARGB(255, 12, 21, 100),
+                            //   ),
+                            // ),
+                            // ProductDetailWidget(),
+                            // ProductDetailWidget(),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.85,
+                                height: 50,
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      primary: const Color.fromARGB(
+                                          255, 78, 206, 113),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  StartRounting(order)));
+                                    },
+                                    child: const Text(
+                                      "Start Route",
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ))),
+                          ],
+                        ),
+                      )),
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 40, bottom: 10),
-                        child: Row(
-                          children: const [
-                            Text(
-                              "Vender Name : ",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 78, 206, 113),
-                              ),
-                            ),
-                            WidthBox(20),
-                            Text(
-                              "John",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 78, 206, 113),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 40),
-                        child: Row(
-                          children: const [
-                            Text(
-                              "Order No : ",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 78, 206, 113),
-                              ),
-                            ),
-                            WidthBox(20),
-                            Text(
-                              "20",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 78, 206, 113),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      HeightBox(30),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Row(
-                          children: const [
-                            Text(
-                              "Supplier 1",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 78, 206, 113),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const HeightBox(10),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        height: 38,
-                        decoration: const BoxDecoration(
-                          // 12,21,100
-                          color: Color.fromARGB(255, 12, 21, 100),
-                        ),
-                      ),
-
-                      ProductDetailWidget(),
-
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        height: 38,
-                        decoration: const BoxDecoration(
-                          // 12,21,100
-                          color: Color.fromARGB(255, 12, 21, 100),
-                        ),
-                      ),
-                      ProductDetailWidget(),
-                      ProductDetailWidget(),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.85,
-                          height: 50,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                primary:
-                                    const Color.fromARGB(255, 78, 206, 113),
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const StartRounting()));
-                              },
-                              child: const Text(
-                                "Start Route",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ))),
-                    ],
-                  ),
-                )),
-          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -256,5 +272,39 @@ class _CurrentOrderState extends State<CurrentOrder> {
         // onTap: _onItemTapped,
       ),
     );
+  }
+
+  void callAPi(int id) async {
+    setState(() {
+      isLoading = true;
+    });
+    var res = await getOrders(id).then((resp) => {
+          //    print(resp)
+
+          handleResp(resp)
+        });
+  }
+
+  void handleResp(Order? user) {
+    setState(() {
+      isLoading = false;
+    });
+
+    if (user?.status == "true") {
+      Fluttertoast.showToast(msg: user?.message ?? "");
+      setState(() {
+        this.order = user;
+      });
+    } else {
+      Fluttertoast.showToast(msg: user?.message ?? "");
+    }
+  }
+
+  void getUserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      int? id = prefs.getInt("userId");
+      callAPi(id ?? 0);
+    });
   }
 }
