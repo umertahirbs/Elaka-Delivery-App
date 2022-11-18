@@ -41,7 +41,8 @@ Future<LoginUser?> login(String email, String password) async {
   }
 }
 
-Future<LoginUser?> verifyOTPCall(String email, String otp) async {
+Future<LoginUser?> verifyOTPCall(
+    String email, String otp, String fcm, String os) async {
   final _authority = baseURl;
   final _path = verifyOtp;
   //final _params = {"q": "dart"};
@@ -52,7 +53,12 @@ Future<LoginUser?> verifyOTPCall(String email, String otp) async {
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, dynamic>{"email": email, "otp": otp}),
+    body: jsonEncode(<String, dynamic>{
+      "email": email,
+      "otp": otp,
+      "device_token": fcm,
+      "os": os
+    }),
   );
 
   if (response.statusCode == 200) {
@@ -214,6 +220,37 @@ Future<LoginUser?> updateProfile(
 Future<Order?> getOrders(int userid) async {
   final _authority = "falconskintools.com";
   final _path = "/alaka/api/orders/deliveryboy";
+  // final _params = {"email": email, "password": password};
+  final _uri = Uri.https(_authority, _path);
+  // var url = Uri.https(loginUrl);
+  final http.Response response = await http.post(
+    _uri,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{"delivery_id": userid}),
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = convert.jsonDecode(response.body);
+    var status = jsonResponse['status'];
+
+    if (status == "true") {
+      Order userRes = Order.fromJson(json.decode(response.body));
+      return userRes;
+    }
+    return null;
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    return null;
+    throw Exception('Failed to signin');
+  }
+}
+
+Future<Order?> getCurrentOrders(int userid) async {
+  final _authority = "falconskintools.com";
+  final _path = "/alaka/api/orders/current/deliveryboy";
   // final _params = {"email": email, "password": password};
   final _uri = Uri.https(_authority, _path);
   // var url = Uri.https(loginUrl);

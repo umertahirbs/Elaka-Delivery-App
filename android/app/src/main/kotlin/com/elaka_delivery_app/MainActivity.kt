@@ -1,4 +1,4 @@
-package com.example.elaka_delivery_app
+package com.elaka_delivery_app
 
 import io.flutter.embedding.android.FlutterActivity
 

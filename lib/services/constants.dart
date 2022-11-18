@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-const String google_map_key =
-    "AIzaSyBIfWTeSzHUG0JdyVrd14dX0tPUqFTifoc"; // "AIzaSyDFwM7ybyQG1cyvKQMV1K_22KR3WCx2sY4";
+const String google_map_key = "AIzaSyBjBdjKkK6iRMrI_YmpPufSH7YsDOqAFW8";
+//"AIzaSyBIxtkyEVxuHY1zxJWuir9PaHOAqWLC0aM";
+// "AIzaSyBIfWTeSzHUG0JdyVrd14dX0tPUqFTifoc"; //"AIzaSyBjBdjKkK6iRMrI_YmpPufSH7YsDOqAFW8";
 
 const String baseURl = "falconskintools.com";
 const String productsImageUrl =

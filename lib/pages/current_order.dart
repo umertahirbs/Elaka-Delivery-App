@@ -1,3 +1,4 @@
+import 'package:elaka_delivery_app/main.dart';
 import 'package:elaka_delivery_app/models/ordermodel.dart';
 import 'package:elaka_delivery_app/pages/available_shift.dart';
 import 'package:elaka_delivery_app/pages/setting.dart';
@@ -6,7 +7,9 @@ import 'package:elaka_delivery_app/pages/start_routing.dart';
 import 'package:elaka_delivery_app/pages/wallet.dart';
 import 'package:elaka_delivery_app/services/Auth.dart';
 import 'package:elaka_delivery_app/widgets/product_detail_widget.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +32,7 @@ class _CurrentOrderState extends State<CurrentOrder> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    _setupNotif();
     getUserID();
   }
 
@@ -70,147 +73,118 @@ class _CurrentOrderState extends State<CurrentOrder> {
                     color: Colors.green,
                     strokeWidth: 2,
                   ))
-              : Expanded(
-                  child: Container(
-                      width: MediaQuery.of(context).size.width * 1,
-                      // height: MediaQuery.of(context).size.height * 0.7,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            spreadRadius: 20,
-                            blurRadius: 15,
-                            offset: const Offset(
-                                0, 10), // changes position of shadow
+              : data == null
+                  ? noOrderView()
+                  : Expanded(
+                      child: Container(
+                          width: MediaQuery.of(context).size.width * 1,
+                          // height: MediaQuery.of(context).size.height * 0.7,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(40),
+                                topRight: Radius.circular(40)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                spreadRadius: 20,
+                                blurRadius: 15,
+                                offset: const Offset(
+                                    0, 10), // changes position of shadow
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 30,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 40, bottom: 10),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "Order Date : ",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 78, 206, 113),
-                                    ),
-                                  ),
-                                  WidthBox(20),
-                                  Text(
-                                    data?.orderDate ?? "",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 78, 206, 113),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 40),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "Order No : ",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 78, 206, 113),
-                                    ),
-                                  ),
-                                  WidthBox(33),
-                                  Text(
-                                    data?.orderNumber ?? "",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 78, 206, 113),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            HeightBox(30),
-                            // Padding(
-                            //   padding: const EdgeInsets.only(left: 20),
-                            //   child: Row(
-                            //     children: const [
-                            //       Text(
-                            //         "Supplier 1",
-                            //         style: TextStyle(
-                            //           fontSize: 24,
-                            //           fontWeight: FontWeight.bold,
-                            //           color: Color.fromARGB(255, 78, 206, 113),
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                            // const HeightBox(10),
-                            // Container(
-                            //   width: MediaQuery.of(context).size.width * 0.9,
-                            //   height: 38,
-                            //   decoration: const BoxDecoration(
-                            //     // 12,21,100
-                            //     color: Color.fromARGB(255, 12, 21, 100),
-                            //   ),
-                            // ),
-
-                            ProductDetailWidget(order),
-
-                            // Container(
-                            //   width: MediaQuery.of(context).size.width * 0.9,
-                            //   height: 38,
-                            //   decoration: const BoxDecoration(
-                            //     // 12,21,100
-                            //     color: Color.fromARGB(255, 12, 21, 100),
-                            //   ),
-                            // ),
-                            // ProductDetailWidget(),
-                            // ProductDetailWidget(),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.85,
-                                height: 50,
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      primary: const Color.fromARGB(
-                                          255, 78, 206, 113),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  StartRounting(order)));
-                                    },
-                                    child: const Text(
-                                      "Start Route",
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 40, bottom: 10),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Order Date : ",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color.fromARGB(255, 78, 206, 113),
+                                        ),
                                       ),
-                                    ))),
-                          ],
-                        ),
-                      )),
-                ),
+                                      WidthBox(20),
+                                      Text(
+                                        data.orderDate ?? "",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color.fromARGB(255, 78, 206, 113),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 40),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Order No : ",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color.fromARGB(255, 78, 206, 113),
+                                        ),
+                                      ),
+                                      WidthBox(33),
+                                      Text(
+                                        data.orderNumber,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color.fromARGB(255, 78, 206, 113),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                HeightBox(30),
+                                ProductDetailWidget(order),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.85,
+                                    height: 50,
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          primary: const Color.fromARGB(
+                                              255, 78, 206, 113),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      StartRounting(order)));
+                                        },
+                                        child: const Text(
+                                          "Start Route",
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ))),
+                              ],
+                            ),
+                          )),
+                    ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -274,13 +248,44 @@ class _CurrentOrderState extends State<CurrentOrder> {
     );
   }
 
+  ///
+
+  Widget noOrderView() {
+    return Expanded(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 1,
+        // height: MediaQuery.of(context).size.height * 0.7,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(40), topRight: Radius.circular(40)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 20,
+              blurRadius: 15,
+              offset: const Offset(0, 10), // changes position of shadow
+            ),
+          ],
+        ),
+        child: const Center(
+          child: Text(
+            "No Current Order",
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+    );
+  }
+
+  ///
+
   void callAPi(int id) async {
     setState(() {
       isLoading = true;
     });
-    var res = await getOrders(id).then((resp) => {
+    var res = await getCurrentOrders(id).then((resp) => {
           //    print(resp)
-
           handleResp(resp)
         });
   }
@@ -289,7 +294,7 @@ class _CurrentOrderState extends State<CurrentOrder> {
     setState(() {
       isLoading = false;
     });
-
+    // _showLocalNot();
     if (user?.status == "true") {
       Fluttertoast.showToast(msg: user?.message ?? "");
       setState(() {
@@ -305,6 +310,60 @@ class _CurrentOrderState extends State<CurrentOrder> {
     setState(() {
       int? id = prefs.getInt("userId");
       callAPi(id ?? 0);
+    });
+  }
+
+  void _showLocalNot() {
+    flutterLocalNotificationsPlugin.show(
+        4,
+        "title",
+        "body",
+        NotificationDetails(
+            android: AndroidNotificationDetails(channel.id, channel.name,
+                playSound: true, color: Colors.blue)));
+  }
+
+  void _setupNotif() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channelDescription: channel.description,
+                color: Colors.blue,
+                playSound: true,
+                icon: '@mipmap/ic_launcher',
+              ),
+            ));
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        showDialog(
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text(notification.title!),
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text(notification.body!)],
+                  ),
+                ),
+              );
+            });
+      }
     });
   }
 }

@@ -89,7 +89,7 @@ class Datum {
         supplierId: json["supplier_id"] == null ? null : json["supplier_id"],
         deliveryId: json["delivery_id"] == null ? null : json["delivery_id"],
         status: json["status"] == null ? null : json["status"],
-        ratting: json["ratting"] == null ? null : json["ratting"],
+        ratting: json["ratting"] == "" ? "" : json["ratting"],
         createdAt: json["created_at"],
         updatedAt: json["updated_at"],
         prodname: json["prodname"] == null ? null : json["prodname"],
