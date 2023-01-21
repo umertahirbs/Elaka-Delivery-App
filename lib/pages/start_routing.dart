@@ -75,7 +75,7 @@ class _StartRountingState extends State<StartRounting> {
                   ),
                   child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: 2,
+                      itemCount: widget.order?.data?.length ?? 0,
                       physics: ScrollPhysics(),
                       itemBuilder: (context, index) {
                         var sup = widget.order?.data![index];

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:elaka_delivery_app/main.dart';
 import 'package:elaka_delivery_app/models/ordermodel.dart';
 import 'package:elaka_delivery_app/pages/available_shift.dart';
@@ -12,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
@@ -27,11 +31,23 @@ class _CurrentOrderState extends State<CurrentOrder> {
   bool isLoading = false;
 
   Order? order;
+  Timer? timer;
+  //Location location = new Location();
+
+  bool _serviceEnabled = false;
+  // PermissionStatus? _permissionGranted;
+  // LocationData? _locationData;
+
+  double lat = 0;
+  double lng = 0;
+
+  int? id;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    setLocationPermission();
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => updateLocation());
     _setupNotif();
     getUserID();
   }
@@ -308,41 +324,41 @@ class _CurrentOrderState extends State<CurrentOrder> {
   void getUserID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      int? id = prefs.getInt("userId");
+      id = prefs.getInt("userId");
       callAPi(id ?? 0);
     });
   }
 
   void _showLocalNot() {
-    flutterLocalNotificationsPlugin.show(
-        4,
-        "title",
-        "body",
-        NotificationDetails(
-            android: AndroidNotificationDetails(channel.id, channel.name,
-                playSound: true, color: Colors.blue)));
+    // flutterLocalNotificationsPlugin.show(
+    //     4,
+    //     "title",
+    //     "body",
+    //     NotificationDetails(
+    //         android: AndroidNotificationDetails(channel.id, channel.name,
+    //             playSound: true, color: Colors.blue)));
   }
 
   void _setupNotif() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                channelDescription: channel.description,
-                color: Colors.blue,
-                playSound: true,
-                icon: '@mipmap/ic_launcher',
-              ),
-            ));
-      }
+      // if (notification != null && android != null) {
+      //   flutterLocalNotificationsPlugin.show(
+      //       notification.hashCode,
+      //       notification.title,
+      //       notification.body,
+      //       NotificationDetails(
+      //         android: AndroidNotificationDetails(
+      //           channel.id,
+      //           channel.name,
+      //           channelDescription: channel.description,
+      //           color: Colors.blue,
+      //           playSound: true,
+      //           icon: '@mipmap/ic_launcher',
+      //         ),
+      //       ));
+      // }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -365,5 +381,35 @@ class _CurrentOrderState extends State<CurrentOrder> {
             });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  void setLocationPermission() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+
+    if (permission != LocationPermission.denied) {
+      var position = await GeolocatorPlatform.instance.getCurrentPosition();
+
+      setState(() {
+        lat = position.latitude;
+        lng = position.longitude;
+      });
+    } else {
+      LocationPermission permission = await Geolocator.requestPermission();
+      await GeolocatorPlatform.instance.getCurrentPosition();
+      setLocationPermission();
+    }
+  }
+
+  void updateLocation() async {
+    if (lat != 0) {
+       var res = await updateLocationApi(id ?? 0, lat, lng)
+         .then((resp) => {print(resp)});
+    }
   }
 }

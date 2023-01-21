@@ -248,6 +248,39 @@ Future<Order?> getOrders(int userid) async {
   }
 }
 
+Future<SubmitOrder?> updateLocationApi(
+    int userid, double lat, double lng) async {
+  final _authority = "falconskintools.com";
+  final _path = "/alaka/api/user/updatelocation";
+  // final _params = {"email": email, "password": password};
+  final _uri = Uri.https(_authority, _path);
+  // var url = Uri.https(loginUrl);
+  final http.Response response = await http.post(
+    _uri,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{"id": userid, "lat": lat, "lng": lng}),
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = convert.jsonDecode(response.body);
+    var status = jsonResponse['status'];
+
+    if (status == "true") {
+      // SubmitOrder userRes = SubmitOrder.fromJson(json.decode(response.body));
+
+      return null;
+    }
+    return null;
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    return null;
+    throw Exception('Failed to signin');
+  }
+}
+
 Future<Order?> getCurrentOrders(int userid) async {
   final _authority = "falconskintools.com";
   final _path = "/alaka/api/orders/current/deliveryboy";

@@ -62,6 +62,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    namespace 'com.elaka_delivery_app'
 }
 
 flutter {

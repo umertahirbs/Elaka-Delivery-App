@@ -3,6 +3,7 @@ import 'package:elaka_delivery_app/pages/deliver_order.dart';
 import 'package:elaka_delivery_app/services/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class GoogleMapping extends StatefulWidget {
@@ -67,16 +68,18 @@ class _GoogleMappingState extends State<GoogleMapping> {
     zoom: 11.5,
   );
 
+  Timer? timer;
   @override
   void initState() {
     super.initState();
 
     startLocation = widget.currentLocat;
     endLocation = widget.supLocation;
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => updateLocation());
 
     _markers.add(
       Marker(
-          markerId: MarkerId("source"),
+          markerId: MarkerId("1"),
           position: widget.currentLocat!,
           icon: sourceIcon,
           infoWindow: InfoWindow(
@@ -86,7 +89,7 @@ class _GoogleMappingState extends State<GoogleMapping> {
     );
     _markers.add(
       Marker(
-          markerId: MarkerId("destination"),
+          markerId: MarkerId("2"),
           position: widget.supLocation!,
           icon: destinationIcon,
           infoWindow: InfoWindow(
@@ -96,6 +99,12 @@ class _GoogleMappingState extends State<GoogleMapping> {
     );
 
     getDirections();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -176,5 +185,43 @@ class _GoogleMappingState extends State<GoogleMapping> {
     );
     polylines[id] = polyline;
     setState(() {});
+  }
+
+  void updateLocation() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+
+    if (permission != LocationPermission.denied) {
+      var position = await GeolocatorPlatform.instance.getCurrentPosition();
+
+      setState(() {
+        startLocation = LatLng(position.latitude, position.longitude);
+        updateMarker("1");
+      });
+    } else {
+      LocationPermission permission = await Geolocator.requestPermission();
+      await GeolocatorPlatform.instance.getCurrentPosition();
+      updateLocation();
+    }
+  }
+
+  updateMarker(String id) {
+    final marker = _markers.firstWhere((item) => item.mapsId == MarkerId(id));
+    // final marker = _markers.elementAt(index);
+
+    Marker _marker = Marker(
+      markerId: marker.markerId,
+      onTap: () {
+        print("tapped");
+      },
+      position: LatLng(marker.position.latitude, marker.position.longitude),
+      icon: marker.icon,
+      infoWindow: InfoWindow(title: ''),
+    );
+
+    setState(() {
+      //the marker is identified by the markerId and not with the index of the list
+      _markers.removeWhere((item) => item.mapsId == id);
+      _markers.add(_marker);
+    });
   }
 }
